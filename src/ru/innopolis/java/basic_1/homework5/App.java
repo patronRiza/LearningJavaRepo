@@ -1,5 +1,7 @@
 package ru.innopolis.java.basic_1.homework5;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /*
@@ -11,42 +13,71 @@ import java.util.Scanner;
 public class App {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        List<Television> tvList = new ArrayList<>();
+        int iterator = 1;
 
-        System.out.print("Инициализация телевизора Samsung");
-        Television samsungTv = new Television("Samsung", 50000, "43\"");
-        System.out.println("\n" + samsungTv + "\n");
+        while (true) {
+            if (iterator > 2) {
+                System.out.println("Продолжаем добавлять телевизоры?\n1.Да\n2.Нет");
+                System.out.println();
+                if (!scanner.nextLine().equals("1")) {
+                    break;
+                }
+            }
+            System.out.println("Введите производителя телевизора");
+            String manufacturer = scanner.nextLine();
 
-        System.out.print("Переключение канала на Samsung на 26");
-        TvRemoteController.setChanel(samsungTv, 26);
-        System.out.println("\n" + samsungTv + "\n");
+            System.out.println("Введите диагональ телевизора");
+            String diagonal = scanner.nextLine();
 
-        System.out.print("Инициализация телевизора LG");
-        Television lgTv = new Television("LG", "45\"");
-        //Установка цены на телевизоре LG
-        lgTv.setCost(74989.99);
-        System.out.println("\n" + lgTv + '\n');
+            System.out.println("Введите цену телевизора");
+            double cost = Double.parseDouble(scanner.nextLine());
 
-        System.out.print("Увеличение громкости до 56 на LG");
-        TvRemoteController.setVolume(lgTv, 56);
-        System.out.println("\n" + lgTv + "\n");
+            Television tv = new Television(manufacturer, cost, diagonal);
+            tvList.add(tv);
 
-        System.out.print("Инициализация телевизора Xiaomi");
-        Television xiaomiTv = new Television("Xiaomi", 35000, "48\"");
-        System.out.println("\n" + xiaomiTv + "\n");
+            iterator++;
+            System.out.println("Телевизор добавлен!\n");
+        }
 
-        System.out.print("Увеличение громкости до 120 на Xiaomi");
-        TvRemoteController.setVolume(xiaomiTv, 120);
-        System.out.println(xiaomiTv + "\n");
+        for (Television tv : tvList) {
+            System.out.println(tv);
+        }
 
-        System.out.println("Инициализация телевизора Sony");
-        Television sonyTv = new Television("Sony", "50\"");
-        //Установка цены на телевмзор Sony
-        System.out.print("Enter how much is Sony Television: ");
-        sonyTv.setCost(scanner.nextDouble());
-        System.out.println(sonyTv + "\n");
+        System.out.println("Хотите включить телевизоры?\n1.Да\n2.Нет");
+        if (scanner.nextLine().equals("1")) {
+            for (Television tv : tvList) {
+                TvRemoteController.turnOn(tv);
+                System.out.println(tv);
+            }
+        }
 
-        System.out.print("Включение телевизора Sony");
-        TvRemoteController.turnOn(sonyTv);
-        System.out.println("\n" + sonyTv + "\n");
+        System.out.println("Хотите прибавить звук?\n1.Да\n2.Нет");
+        if (scanner.nextLine().equals("1")) {
+            for (int i = 0; i < tvList.size(); i++) {
+                System.out.println((i + 1) + ". " + tvList.get(i).getManufacturer());
+            }
+            System.out.print("Выберите телевизор: ");
+            int tvNum = Integer.parseInt(scanner.nextLine());
+            System.out.println("На сколько прибавить звук? (Рекомендованная громкость 50-70)");
+            int volume = Integer.parseInt(scanner.nextLine());
+            if (0 > volume || volume > 100) {
+                System.out.println("\nВы ввели некорректный уровень громкости! Давайте еще раз");
+                volume = Integer.parseInt(scanner.nextLine());
+            }
+            if ((volume >= 0 && volume < 50) || (volume > 70 && volume <= 100)) {
+                System.out.println("Это не рекомендованная громкость... Давайте еще раз!");
+                volume = Integer.parseInt(scanner.nextLine());
+                if (volume >= 50 && volume <= 70) {
+                    System.out.println("То что нужно!\n");
+                } else {
+                    System.out.println("Ваш слух на вашей совести!\n");
+                }
+            }
+            TvRemoteController.setVolume(tvList.get(tvNum - 1), volume);
+        }
+        for (Television tv : tvList) {
+            System.out.println(tv);
+        }
     }
 }
