@@ -18,7 +18,6 @@ public class Television {
             new Chanel(5, "Первый",
                     new Program("Балет", 3.9, 300))
             );
-    private Random rand = new Random();
     private final String manufacturer;
     private final String diagonal;
     private final double cost;
@@ -31,6 +30,7 @@ public class Television {
         this.manufacturer = manufacturer;
         this.cost = cost;
         this.diagonal = diagonal;
+        Random rand = new Random();
         this.chanel = channels.get(rand.nextInt(channels.size())).getChanelName();
         this.volume = 10;
         this.isOn = false;
