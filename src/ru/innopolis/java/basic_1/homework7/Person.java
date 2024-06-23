@@ -34,8 +34,12 @@ public class Person {
         return money;
     }
 
+    public double getDiscountLevel() {
+        return discountLevels;
+    }
+
     public void setMoney(double costOfProduct) {
-        this.money -= costOfProduct * (1 - (this.discountLevels * 0.01));
+        this.money -= costOfProduct;
     }
 
     public List<Product> getPackageOfProducts() {
@@ -65,7 +69,7 @@ public class Person {
     public String toString() {
         return name + " {" +
                 "на счету = " + money +
-                "уровень скидки = " + discountLevels + " %" +
+                " уровень скидки = " + discountLevels + " %" +
                 '}';
     }
 

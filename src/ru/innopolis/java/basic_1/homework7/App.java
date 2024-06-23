@@ -10,31 +10,38 @@ public class App {
         Scanner sc = new Scanner(System.in);
         List<Person> personsList = new ArrayList<>();
         List<Product> productList = new ArrayList<>();
-        List<String> requests = new ArrayList<>();
         System.out.print("Введите людей: ");
         createPerson(personsList, sc.nextLine());
-        System.out.print("Введите продукты: ");
-        createProduct(productList, sc.nextLine());
+
+        System.out.println("Введите продукты: ");
+        while (true) {
+            String input = sc.nextLine();
+            if (input.equals("END")) {
+                break;
+            } else {
+                createProduct(productList, input);
+            }
+        }
+
         System.out.println("Введите имя покупателя и название покупаемого товара через запятую (Например: Анна, Торт): ");
         while (true) {
             String input = sc.nextLine();
             if (input.equals("END")) {
                 break;
-            } else
-                requests.add(input);
-        }
-
-        for (String request : requests) {
-            if (buyProduct(findFromPersonList(personsList, request), findFromProductList(productList, request))) {
-                if (request.split(", ")[0].equals("Анна Петровна")) {
-                    System.out.println("Анна Петровна купила " + request.split(", ")[1]);
-                } else {
-                    System.out.println(request.split(", ")[0] + " купил " + request.split(", ")[1]);
-                }
             } else {
-                System.out.println(request.split(", ")[0] + " не может позволить себе " + request.split(", ")[1]);
+                if (buyProduct(findFromPersonList(personsList, input), findFromProductList(productList, input))) {
+                    if (input.split(", ")[0].equals("Анна Петровна")) {
+                        System.out.println("Анна Петровна купила " + input.split(", ")[1]);
+                    } else {
+                        System.out.println(input.split(", ")[0] + " купил " + input.split(", ")[1]);
+                    }
+                } else {
+                    System.out.println(input.split(", ")[0] + " не может позволить себе " + input.split(", ")[1]);
+                }
             }
         }
+
+
 
         System.out.println("\n1. Информация о покупателях");
         System.out.println("------------------------");
@@ -44,11 +51,19 @@ public class App {
 
         System.out.println("\n2. Информация о продуктах");
         System.out.println("----------------------");
+        System.out.print("Обычные продукты: ");
         for (Product product : productList) {
-            System.out.println(product);
+            if (!product.status)
+                System.out.print(product.getProductName() + "; ");
+        }
+        System.out.println("\n----------------------");
+        System.out.print("Акционные продукты: ");
+        for (Product product : productList) {
+            if (product.status)
+                System.out.print(product.getProductName() + "; ");
         }
 
-        System.out.println("\n3. Информация о пакетах:");
+        System.out.println("\n\n3. Информация о пакетах:");
         System.out.println("---------------------");
         for (Person person : personsList) {
 
@@ -84,15 +99,47 @@ public class App {
     }
 
     public static void createProduct(List<Product> productList, String products) {
-        for (String res : splitting(products)) {
-            productList.add(new Product(res.split(",")[0], Double.parseDouble(res.split(",")[1])));
+        String str = products.replace(" = ", ", ").replace(", ", ",");
+        if (str.endsWith("%")) {
+            str = str.substring(0, str.length() - 1);
+            while (true) {
+                if (checkNaming(str.split(",")[0])) {
+                    System.out.println("Недопустимое имя продукта!");
+                    break;
+                }
+                if (Double.parseDouble(str.split(",")[1]) <= 0) {
+                    System.out.println("Недопустимая стоимость продукта!");
+                    break;
+                }
+                else {
+                    productList.add(new DiscountProduct(str.split(",")[0], Double.parseDouble(str.split(",")[1]), Double.parseDouble(str.split(",")[2])));
+                    break;
+                }
+            }
+        }
+        else {
+            while (true) {
+                if (checkNaming(str.split(",")[0])) {
+                    System.out.println("Недопустимое имя продукта!");
+                    break;
+                }
+                if (Double.parseDouble(str.split(",")[1]) <= 0) {
+                    System.out.println("Недопустимая стоимость продукта!");
+                    break;
+                }
+                else {
+                    productList.add(new Product(str.split(",")[0], Double.parseDouble(str.split(",")[1])));
+                    break;
+                }
+            }
         }
     }
 
     public static boolean buyProduct(Person person, Product product) {
-        if ((person.getMoney() - product.getTotalPrice()) > 0) {
+        double final_cost = (product.getTotalPrice() * (1 - (person.getDiscountLevel() * 0.01)));
+        if ((person.getMoney() - final_cost) >= 0) {
             person.addPackageOfProducts(product);
-            person.setMoney(product.getTotalPrice());
+            person.setMoney(final_cost);
             return true;
         } else
             return false;
@@ -114,5 +161,16 @@ public class App {
                 product = value;
         }
         return product;
+    }
+
+    private static boolean checkNaming(String string) {
+        if (string.length() < 3)
+            return true;
+        try {
+            Integer.parseInt(string);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }

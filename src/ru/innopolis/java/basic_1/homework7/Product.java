@@ -4,15 +4,12 @@ import java.util.Objects;
 
 public class Product {
     private final String productName;
-    private double productPrice;
+    private final double productPrice;
+    protected boolean status = false;
 
     public Product(String productName, double productPrice) {
         this.productName = productName;
-        if (productPrice < 0)
-            System.out.println("Стоимость продукта не может быть отрицательным числом");
-        else {
-            this.productPrice = productPrice;
-        }
+        this.productPrice = productPrice;
     }
 
     public String getProductName() {
