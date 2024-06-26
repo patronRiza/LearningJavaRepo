@@ -1,17 +1,31 @@
 package ru.innopolis.java.basic_1.homework7;
 
+import ru.innopolis.java.basic_1.homework7.persons.Adult;
+import ru.innopolis.java.basic_1.homework7.persons.Child;
+import ru.innopolis.java.basic_1.homework7.persons.Person;
+import ru.innopolis.java.basic_1.homework7.persons.Retiree;
+import ru.innopolis.java.basic_1.homework7.prooducts.DiscountProduct;
+import ru.innopolis.java.basic_1.homework7.prooducts.Product;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-public class App {
+public class MainApp {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         List<Person> personsList = new ArrayList<>();
         List<Product> productList = new ArrayList<>();
-        System.out.print("Введите людей: ");
-        createPerson(personsList, sc.nextLine());
+        System.out.println("Введите людей: ");
+        while (true) {
+            String input = sc.nextLine();
+            if (input.equals("END")) {
+                break;
+            } else {
+                createPerson(personsList, input);
+            }
+        }
 
         System.out.println("Введите продукты: ");
         while (true) {
@@ -53,13 +67,13 @@ public class App {
         System.out.println("----------------------");
         System.out.print("Обычные продукты: ");
         for (Product product : productList) {
-            if (!product.status)
+            if (!product.isStatus())
                 System.out.print(product.getProductName() + "; ");
         }
         System.out.println("\n----------------------");
         System.out.print("Акционные продукты: ");
         for (Product product : productList) {
-            if (product.status)
+            if (product.isStatus())
                 System.out.print(product.getProductName() + "; ");
         }
 
@@ -87,14 +101,32 @@ public class App {
         }
     }
 
-    private static String[] splitting(String input) {
-        String hardRequest = input.replace(" = ", ",");
-        return hardRequest.split("; ");
-    }
-
     public static void createPerson(List<Person> personsList, String persons) {
-        for (String res : splitting(persons)) {
-            personsList.add(new Person(res.split(",")[0], Double.parseDouble(res.split(",")[1])));
+        String str = persons.replace(" = ", ", ").replace(", ", ",");
+        while (true) {
+            if (Double.parseDouble(str.split(",")[1]) < 0) {
+                System.out.println("Деньги не могут быть отрицательным числом");
+                break;
+            }
+            else {
+                int age = Integer.parseInt(str.split(",")[2]);
+                if ((0 <= age) && (age < 17)) {
+                    personsList.add(new Child(str.split(",")[0],
+                            Double.parseDouble(str.split(",")[1]),
+                            Integer.parseInt(str.split(",")[2])));
+                    break;
+                } else if ((17 <= age) && (age < 65)) {
+                    personsList.add(new Adult(str.split(",")[0],
+                            Double.parseDouble(str.split(",")[1]),
+                            Integer.parseInt(str.split(",")[2])));
+                    break;
+                } else {
+                    personsList.add(new Retiree(str.split(",")[0],
+                            Double.parseDouble(str.split(",")[1]),
+                            Integer.parseInt(str.split(",")[2])));
+                    break;
+                }
+            }
         }
     }
 
@@ -136,6 +168,10 @@ public class App {
     }
 
     public static boolean buyProduct(Person person, Product product) {
+        if (person.getAge() < 6) {
+            System.out.println("Дети до 6 не могут покупать товары(");
+            return false;
+        }
         double final_cost = (product.getTotalPrice() * (1 - (person.getDiscountLevel() * 0.01)));
         if ((person.getMoney() - final_cost) >= 0) {
             person.addPackageOfProducts(product);

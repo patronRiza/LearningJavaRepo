@@ -1,58 +1,43 @@
-package ru.innopolis.java.basic_1.homework7;
+package ru.innopolis.java.basic_1.homework7.persons;
 
+import ru.innopolis.java.basic_1.homework7.enums.Ages;
 import ru.innopolis.java.basic_1.homework7.enums.DiscountLevels;
+import ru.innopolis.java.basic_1.homework7.prooducts.Product;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Person {
-    private final String name;
-    private double money;
-
-    private int numOfPurchases = 0;
-
-    private final List<Product> packageOfProducts = new ArrayList<>();
+public class Child extends Person {
     private int discountLevels;
+    private int numOfPurchases = 0;
+    private final List<Product> packageOfProducts = new ArrayList<>();
+    private final Ages ageStatus = Ages.CHILD;
 
-    public Person(String name, double money) {
-        this.name = name;
-        if (money < 0) {
-            System.out.println("Деньги не могут быть отрицательным числом");
-        }
-        else {
-            this.money = money;
-        }
-        changeDiscountLevel();
+    public Child(String name, double money, int age) {
+        super(name, money, age);
+        updateDiscountLevel();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public double getMoney() {
-        return money;
-    }
-
-    public double getDiscountLevel() {
+    @Override
+    public int getDiscountLevel() {
         return discountLevels;
     }
 
-    public void setMoney(double costOfProduct) {
-        this.money -= costOfProduct;
-    }
-
+    @Override
     public List<Product> getPackageOfProducts() {
         return packageOfProducts;
     }
 
+    @Override
     public void addPackageOfProducts(Product product) {
         packageOfProducts.add(product);
         numOfPurchases++;
-        changeDiscountLevel();
+        updateDiscountLevel();
     }
 
-    private void changeDiscountLevel() {
+    @Override
+    protected void updateDiscountLevel() {
         if (numOfPurchases == 6) {
             this.numOfPurchases = 0;
         }
@@ -62,13 +47,12 @@ public class Person {
             case 4 -> this.discountLevels = Integer.parseInt(DiscountLevels.valueOf("SILVER_DISCOUNT").toString());
             case 5 -> this.discountLevels = Integer.parseInt(DiscountLevels.valueOf("GOLD_DISCOUNT").toString());
         }
-
     }
 
     @Override
     public String toString() {
-        return name + " {" +
-                "на счету = " + money +
+        return super.getName() + " - " + ageStatus + " {" +
+                "на счету = " + super.getMoney() +
                 " уровень скидки = " + discountLevels + " %" +
                 '}';
     }
@@ -76,12 +60,13 @@ public class Person {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Person person)) return false;
-        return Double.compare(money, person.money) == 0 && Objects.equals(name, person.name) && Objects.equals(packageOfProducts, person.packageOfProducts);
+        if (!(o instanceof Child child)) return false;
+        if (!super.equals(o)) return false;
+        return ageStatus == child.ageStatus;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, money, packageOfProducts);
+        return Objects.hash(super.hashCode(), ageStatus);
     }
 }
