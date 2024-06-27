@@ -12,6 +12,7 @@ public class Adult extends Person {
     private int discountLevels;
     private int numOfPurchases = 0;
     private final List<Product> packageOfProducts = new ArrayList<>();
+    private final List<Product> packageOfProductsOnCredit = new ArrayList<>();
     private final Ages ageStatus = Ages.ADULT;
 
     public Adult(String name, double money, int age) {
@@ -23,12 +24,18 @@ public class Adult extends Person {
         return discountLevels;
     }
 
-    public List<Product> getPackageOfProducts() {
-        return packageOfProducts;
-    }
+    public List<Product> getPackageOfProducts() { return packageOfProducts; }
 
     public void addPackageOfProducts(Product product) {
         packageOfProducts.add(product);
+        numOfPurchases++;
+        updateDiscountLevel();
+    }
+
+    public List<Product> getPackageOfProductsOnCredit() { return packageOfProductsOnCredit; }
+
+    public void addPackageOfProductsOnCredit(Product product) {
+        packageOfProductsOnCredit.add(product);
         numOfPurchases++;
         updateDiscountLevel();
     }

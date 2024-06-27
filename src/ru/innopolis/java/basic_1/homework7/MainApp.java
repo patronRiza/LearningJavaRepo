@@ -42,19 +42,9 @@ public class MainApp {
             String input = sc.nextLine();
             if (input.equals("END")) {
                 break;
-            } else {
-                if (buyProduct(findFromPersonList(personsList, input), findFromProductList(productList, input))) {
-                    if (input.split(", ")[0].equals("Анна Петровна")) {
-                        System.out.println("Анна Петровна купила " + input.split(", ")[1]);
-                    } else {
-                        System.out.println(input.split(", ")[0] + " купил " + input.split(", ")[1]);
-                    }
-                } else {
-                    System.out.println(input.split(", ")[0] + " не может позволить себе " + input.split(", ")[1]);
-                }
-            }
+            } else
+                buyProduct(findFromPersonList(personsList, input), findFromProductList(productList, input), input);
         }
-
 
 
         System.out.println("\n1. Информация о покупателях");
@@ -80,23 +70,18 @@ public class MainApp {
         System.out.println("\n\n3. Информация о пакетах:");
         System.out.println("---------------------");
         for (Person person : personsList) {
-
-            if (person.getName().equals("Анна Петровна")) {
-                if (person.getPackageOfProducts().isEmpty())
-                    System.out.println(person.getName() + " ничего не купила");
-                else
-                    System.out.println(person.getName() + " купила - " + Arrays.toString(person.getPackageOfProducts()
-                            .toArray())
-                            .replace("[", "")
-                            .replace("]", ""));
-            } else {
-                if (person.getPackageOfProducts().isEmpty())
-                    System.out.println(person.getName() + " ничего не купил");
-                else
-                    System.out.println(person.getName() + " купил - " + Arrays.toString(person.getPackageOfProducts()
-                            .toArray())
-                            .replace("[", "")
-                            .replace("]", ""));
+            if (person.getPackageOfProducts().isEmpty())
+                System.out.println(person.getName() + " ничего не купил/купила");
+            else
+                System.out.println(person.getName() + " купил/купила - " + Arrays.toString(person.getPackageOfProducts()
+                                .toArray())
+                        .replace("[", "")
+                        .replace("]", ""));
+            if ((person instanceof Adult currentPerson) && (!currentPerson.getPackageOfProductsOnCredit().isEmpty())) {
+                System.out.println(currentPerson.getName() + " купил/купила в кредит - " + Arrays.toString(currentPerson.getPackageOfProductsOnCredit()
+                                .toArray())
+                        .replace("[", "")
+                        .replace("]", ""));
             }
         }
     }
@@ -107,8 +92,7 @@ public class MainApp {
             if (Double.parseDouble(str.split(",")[1]) < 0) {
                 System.out.println("Деньги не могут быть отрицательным числом");
                 break;
-            }
-            else {
+            } else {
                 int age = Integer.parseInt(str.split(",")[2]);
                 if ((0 <= age) && (age < 17)) {
                     personsList.add(new Child(str.split(",")[0],
@@ -142,14 +126,12 @@ public class MainApp {
                 if (Double.parseDouble(str.split(",")[1]) <= 0) {
                     System.out.println("Недопустимая стоимость продукта!");
                     break;
-                }
-                else {
+                } else {
                     productList.add(new DiscountProduct(str.split(",")[0], Double.parseDouble(str.split(",")[1]), Double.parseDouble(str.split(",")[2])));
                     break;
                 }
             }
-        }
-        else {
+        } else {
             while (true) {
                 if (checkNaming(str.split(",")[0])) {
                     System.out.println("Недопустимое имя продукта!");
@@ -158,8 +140,7 @@ public class MainApp {
                 if (Double.parseDouble(str.split(",")[1]) <= 0) {
                     System.out.println("Недопустимая стоимость продукта!");
                     break;
-                }
-                else {
+                } else {
                     productList.add(new Product(str.split(",")[0], Double.parseDouble(str.split(",")[1])));
                     break;
                 }
@@ -167,18 +148,33 @@ public class MainApp {
         }
     }
 
-    public static boolean buyProduct(Person person, Product product) {
+    public static void buyProduct(Person person, Product product, String input) {
         if (person.getAge() < 6) {
             System.out.println("Дети до 6 не могут покупать товары(");
-            return false;
+            return;
+        }
+        if ((person.getAge() >= 65) && !(product instanceof DiscountProduct)) {
+            System.out.println(person.getName() + " является пенсионером и отказывается покупать продукт, на которого нет скидки");
+            return;
         }
         double final_cost = (product.getTotalPrice() * (1 - (person.getDiscountLevel() * 0.01)));
         if ((person.getMoney() - final_cost) >= 0) {
             person.addPackageOfProducts(product);
             person.setMoney(final_cost);
-            return true;
-        } else
-            return false;
+            System.out.println(input.split(", ")[0] + " купил/купила " + input.split(", ")[1]);
+        } else {
+            if (person instanceof Adult currentPerson) {
+                Scanner sc = new Scanner(System.in);
+                System.out.println("Недостаточно денег");
+                System.out.print("Приобрести в кредит? YES/NO ");
+                if (sc.next().equalsIgnoreCase("yes")) {
+                    currentPerson.addPackageOfProductsOnCredit(product);
+                    System.out.println(input.split(", ")[0] + " купил/купила в кредит " + input.split(", ")[1]);
+                    return;
+                }
+            }
+            System.out.println(input.split(", ")[0] + " не может позволить себе " + input.split(", ")[1]);
+        }
     }
 
     private static Person findFromPersonList(List<Person> personList, String request) {
