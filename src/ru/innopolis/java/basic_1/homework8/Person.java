@@ -7,7 +7,7 @@ import java.util.Objects;
 public class Person {
     private final String name;
     private double money;
-    private List<Product> packageOfProducts = new ArrayList<>();
+    private final List<Product> packageOfProducts = new ArrayList<>();
 
     public Person(String name, double money) {
         this.name = name;
